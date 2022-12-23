@@ -1,8 +1,41 @@
 // https://docs.idew.org/video-game/project-outline/1-7-phaser-practice-3-side-scrolling-game/p3-steps-1-5
 // https://photonstorm.github.io/phaser3-docs/Phaser.GameObjects.Sprite.html#willRender__anchor
+
+
+var mover = {
+    deadzone: 8,
+    isActive: false,
+    startX: 0,
+    startY: 0,
+    pointer: null,
+    id: null
+};
+var jumper = {
+    isActive: false,
+    startX: 0,
+    startY: 0,
+    pointer: null,
+    id: null,
+};
+
+// var mobile_controls = {
+//     deadzone: 20,
+//     direction: function () {
+//         return {
+//             left: mover.isActive && pointer.x < startX - this.deadzone,
+//             right: mover.isActive && pointer.x > startX + this.deadzone,
+//             up: mover.isActive && pointer.y < startY - this.deadzone,
+//             down: mover.isActive && pointer.y > startY + this.deadzone,
+//         }
+//     },
+//     pointers: [],
+// }
+
 function bounds(val, lo, hi) {
     return Math.min(Math.max(val, lo), hi);
 }
+
+var graphics;
 
 var gravity_t = 0.5;
 var gravity_h = 32;
@@ -69,15 +102,100 @@ function create() {
     this.stuff.platforms.create();
     this.stuff.platforms.collide(this.stuff.player.sprite);
 
-
+    // Set camera following
     this.cameras.main.setZoom(1);
     this.cameras.main.startFollow(this.stuff.player.sprite, true, 1.0, 0.1, 0, 0);
-    // this.cameras.main.setLerp(1.0, 0.1)
-    // this.cameras.main.setRoundPixels(true)
+
+
+    // Add graphics last to be on top
+    this.graphics = this.add.graphics();
+    graphics = this.graphics;
 }
 
 function update() {
+    update_mobile_controls();
     this.stuff.player.update();
+}
+
+function create_mobile_controls() {
+    // for (let i = 0; i < 10; i++) {
+    //     let pointer = main.input['pointer' + (i + 1)];
+    //     mobile_controls.pointers = {
+    //         original: pointer,
+    //         x : function() {
+    //             return this.original.x + main.cameras.main.scrollX;
+    //         },
+    //         y : function() {
+    //             return this.original.y + main.cameras.main.scrollY;
+    //         }
+    //     }
+    // }
+}
+
+function update_mobile_controls() {
+    var cursors = main.cursors;
+
+    graphics.clear()
+    graphics.x = main.cameras.main.scrollX;
+    graphics.y = main.cameras.main.scrollY;
+
+    // Dissociate pointers from mover/jumper if !isDown
+    if (mover.pointer != null && !mover.pointer.isDown) {
+        mover.pointer = null;
+        mover.isActive = false;
+        mover.id = null;
+    }
+
+    if (jumper.pointer != null && !jumper.pointer.isDown) {
+        jumper.pointer = null;
+        jumper.isActive = false;
+        jumper.id = null;
+    }
+
+    for (let i = 0; i < 10; i++) {
+        let pointer = main.input['pointer' + (i + 1)];
+        if (pointer.isDown) {
+            if (!mover.isActive && i != jumper.id) {
+                // Assign pointer to mover
+                mover.isActive = true;
+                mover.pointer = pointer;
+                mover.startX = pointer.x;
+                mover.startY = pointer.y;
+                mover.id = i;
+            } else if (!jumper.isActive && i != mover.id) {
+                // Assign pointer to jumper
+                jumper.isActive = true;
+                jumper.pointer = pointer
+                jumper.startX = pointer.x;
+                jumper.startY = pointer.y;
+                jumper.id = i;
+            }
+        }
+    }
+
+    if (mover.isActive) {
+        graphics.fillStyle(0xff0000, 1);
+        let startX = mover.startX;
+        let startY = mover.startY;
+        let endX = bounds(mover.pointer.x, startX - 16, startX + 16)
+        let endY = bounds(startY, startY - 16, startY + 16)
+        graphics.fillCircle(startX, startY, 16);
+
+        graphics.lineStyle(2, 0x0a0a0a, 1.0);
+        graphics.beginPath();
+        graphics.moveTo(startX, startY);
+        graphics.lineTo(endX, endY);
+        graphics.closePath();
+        graphics.strokePath();
+
+        graphics.fillStyle(0x00ff00, 1);
+        graphics.fillCircle(endX, endY, 8);
+    }
+
+    if (jumper.isActive) {
+        graphics.fillStyle(0x0000ff, 1);
+        graphics.fillCircle(jumper.startX, jumper.startY, 16);
+    }
 }
 
 class Platforms {
@@ -100,7 +218,7 @@ class Platforms {
         // let map_festive = this.make.tilemap({key: 'tiles-festive-map'});
         // let tileset_festive = map.addTilesetImage('tiles-festive');
 
-        let map_arranged = main.make.tilemap({key: "tiles-arranged-map"});
+        let map_arranged = main.make.tilemap({ key: "tiles-arranged-map" });
         let tileset_snow = map_arranged.addTilesetImage('TileSheet_Snow', 'tiles-snow');
         let tileset_festive = map_arranged.addTilesetImage('TileSheet_Festive', 'tiles-festive');
 
@@ -188,7 +306,7 @@ class Player {
 
         this.isRight = false;
         this.isWalk = false;
-        
+
         sprite.setOrigin(0.5, 1.0)
     }
 
@@ -196,22 +314,28 @@ class Player {
         let cursors = main.cursors;
         let player = this.sprite;
 
-        if (cursors.left.isDown) {
+        if (cursors.left.isDown || (mover.isActive && mover.pointer.x < mover.startX - 4)) {
             this.isRight = false;
             this.isWalk = true;
-            player.setVelocityX(-gravity_vh);
+            if (!mover.isActive)
+                player.setVelocityX(-gravity_vh);
+            else
+                player.setVelocityX(gravity_vh * bounds(0.01 * (mover.pointer.x - mover.startX) * 5, -1, 1));
         }
-        else if (cursors.right.isDown) {
+        else if (cursors.right.isDown || (mover.isActive && mover.pointer.x > mover.startX + 4)) {
             this.isRight = true;
             this.isWalk = true;
-            player.setVelocityX(gravity_vh);
+            if (!mover.isActive)
+                player.setVelocityX(gravity_vh);
+            else
+                player.setVelocityX(gravity_vh * bounds(0.01 * (mover.pointer.x - mover.startX) * 5, -1, 1));
         }
         else {
             this.isWalk = false;
             player.setVelocityX(0);
         }
 
-        if ((cursors.up.isDown) && player.body.blocked.down) {
+        if ((cursors.up.isDown || jumper.isActive) && player.body.blocked.down) {
             // this.isWalk = true;
             player.setVelocityY(-gravity_v);
         }
