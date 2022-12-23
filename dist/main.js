@@ -5,22 +5,26 @@ function bounds(val, lo, hi) {
 }
 
 var gravity_t = 0.5;
-var gravity_h = 92;
+var gravity_h = 32;
 var gravity_a = 4 * gravity_h / (gravity_t * gravity_t);
 var gravity_v = 4 * gravity_h / gravity_t;
 var gravity_dh = 150;
 var gravity_vh = gravity_dh / gravity_t;
+var gameWidth = 200;
+var gameHeight = 150;
+var stuff;
 
 var config = {
     type: Phaser.AUTO,
     scale: {
         parent: 'phaser-example',
-        width: 800,
-        height: 600,
+        width: gameWidth,
+        height: gameHeight,
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH,
     },
     backgroundColor: '#efefef',
+    pixelArt: true,
     scene: {
         preload: preload,
         create: create,
@@ -45,6 +49,7 @@ function preload() {
         player: new Player(),
         platforms: new Platforms(),
     }
+    stuff = this.stuff;
 
     this.stuff.player.preload();
     this.stuff.platforms.preload();
@@ -52,7 +57,8 @@ function preload() {
 var main;
 function create() {
     // Set the physical boundaries for the player to not hit the world boundaries
-    this.physics.world.setBounds(0, 0, 800, 600);
+    this.physics.world.setBounds(0, 0, 1600, 300);
+    this.cameras.main.setBounds(0, 0, 1600, 300);
 
     // Initialize the input controls
     this.input.addPointer(10);
@@ -63,6 +69,11 @@ function create() {
     this.stuff.platforms.create();
     this.stuff.platforms.collide(this.stuff.player.sprite);
 
+
+    this.cameras.main.setZoom(1);
+    this.cameras.main.startFollow(this.stuff.player.sprite);
+    this.cameras.main.setLerp(1.0, 0.1)
+    this.cameras.main.setRoundPixels(true)
 }
 
 function update() {
@@ -72,21 +83,41 @@ function update() {
 class Platforms {
     preload() {
         main.load.image('ground', 'assets/firstgame/platform.png');
+        // main.load.tilemapTiledJSON('tiles-snow-map', 'assets/snowtiles/TileSheet_Snow.json')
+        // main.load.tilemapTiledJSON('tiles-festive-map', 'assets/snowtiles/TileSheet_Festive.json')
+        main.load.tilemapTiledJSON('tiles-arranged-map', 'assets/snowtiles/Arrangement1.json')
+        main.load.image('tiles-snow', 'assets/snowtiles/TileSheet_Snow.png')
+        main.load.image('tiles-festive', 'assets/snowtiles/TileSheet_Festive.png')
     }
 
     create() {
-        this.group = main.physics.add.staticGroup();
+        // this.group = main.physics.add.staticGroup();
         var platforms = this.group;
 
-        platforms.create(400, 568, 'ground').setScale(2).refreshBody();
-        platforms.create(600, 400, 'ground');
+        // let map_snow = this.make.tilemap({key: 'tiles-snow-map'});
+        // let tileset_snow = map.addTilesetImage('tiles-snow');
 
-        platforms.create(50, 250, 'ground');
-        platforms.create(750, 220, 'ground');
+        // let map_festive = this.make.tilemap({key: 'tiles-festive-map'});
+        // let tileset_festive = map.addTilesetImage('tiles-festive');
+
+        let map_arranged = main.make.tilemap({key: "tiles-arranged-map"});
+        let tileset_snow = map_arranged.addTilesetImage('TileSheet_Snow', 'tiles-snow');
+        let tileset_festive = map_arranged.addTilesetImage('TileSheet_Festive', 'tiles-festive');
+
+        let layer = map_arranged.createLayer('Tile Layer 1', [tileset_snow, tileset_festive]);
+        // map_arranged.setCollisionByExclusion([-1])
+        // layer.setCollisionByProperty({ collides: true });
+        layer.setCollisionFromCollisionGroup();
+        this.group = layer;
+        // platforms.create(400, 568, 'ground').setScale(2).refreshBody();
+        // platforms.create(600, 400, 'ground');
+
+        // platforms.create(50, 250, 'ground');
+        // platforms.create(750, 220, 'ground');
     }
 
     collide(other) {
-        main.physics.add.collider(other, this.group);
+        main.physics.add.collider(other, this.group, null, null, main);
     }
 
     update() {
@@ -101,20 +132,20 @@ class Player {
         // main.load.spritesheet('santawalk', 'assets/characters/Santa/SantaWalk_01_16x1.png', {frameWidth:18, frameHeight:16});
 
         for (let i = 1; i <= 16; i++) {
-            main.load.image('santawalk'+i, 'assets/characters/Santa/SantaWalk/SantaWalk_'+String(i).padStart(2, '0')+'.png')
+            main.load.image('santawalk' + i, 'assets/characters/Santa/SantaWalk/SantaWalk_' + String(i).padStart(2, '0') + '.png')
         }
         for (let i = 1; i <= 64; i++) {
-            main.load.image('santaidle'+i, 'assets/characters/Santa/SantaIdle/SantaIdle_'+String(i).padStart(2, '0')+'.png')
+            main.load.image('santaidle' + i, 'assets/characters/Santa/SantaIdle/SantaIdle_' + String(i).padStart(2, '0') + '.png')
         }
     }
 
     create() {
-        this.sprite = main.physics.add.sprite(100, 450, 'santaidle1');
+        this.sprite = main.physics.add.sprite(100, 50, 'santaidle1');
         let sprite = this.sprite;
         // sprite.setScale(2)
-        sprite.displayWidth = 100;
-        sprite.scaleY = sprite.scaleX;
-        sprite.setBounce(0.1);
+        // sprite.displayWidth = 100;
+        // sprite.scaleY = sprite.scaleX;
+        sprite.setBounce(0);
         sprite.setCollideWorldBounds(true);
 
         let santawalkright = []
@@ -122,12 +153,12 @@ class Player {
         let santaidleright = []
         let santaidleleft = []
         for (let i = 1; i <= 4; i++) {
-            santawalkright.push({key: 'santawalk'+i})
-            santawalkleft.push({key: 'santawalk'+(i+4)})
+            santawalkright.push({ key: 'santawalk' + i })
+            santawalkleft.push({ key: 'santawalk' + (i + 4) })
         }
         for (let i = 1; i <= 16; i++) {
-            santaidleright.push({key: 'santaidle'+i})
-            santaidleleft.push({key: 'santaidle'+(i+16)})
+            santaidleright.push({ key: 'santaidle' + i })
+            santaidleleft.push({ key: 'santaidle' + (i + 16) })
         }
         main.anims.create({
             key: 'right',
@@ -156,33 +187,52 @@ class Player {
         });
 
         this.isRight = false;
+        this.isWalk = false;
+        
+        sprite.setOrigin(0.5, 1.0)
     }
 
     update() {
         let cursors = main.cursors;
         let player = this.sprite;
-        
+
         if (cursors.left.isDown) {
-            player.setVelocityX(-gravity_vh);
             this.isRight = false;
-            player.anims.play('left', true);
+            this.isWalk = true;
+            player.setVelocityX(-gravity_vh);
         }
         else if (cursors.right.isDown) {
-            player.setVelocityX(gravity_vh);
             this.isRight = true;
-            player.anims.play('right', true);
+            this.isWalk = true;
+            player.setVelocityX(gravity_vh);
         }
         else {
+            this.isWalk = false;
             player.setVelocityX(0);
+        }
+
+        if ((cursors.up.isDown) && player.body.blocked.down) {
+            // this.isWalk = true;
+            player.setVelocityY(-gravity_v);
+        }
+
+        if (!player.body.blocked.down) {
+            this.isWalk = true;
+        }
+
+        if (this.isWalk) {
+            if (this.isRight) {
+                player.anims.play('right', true);
+            } else {
+                player.anims.play('left', true);
+            }
+        } else {
+
             if (this.isRight) {
                 player.anims.play('idleright', true);
             } else {
                 player.anims.play('idleleft', true);
             }
-        }
-
-        if ((cursors.up.isDown) && player.body.touching.down) {
-            player.setVelocityY(-gravity_v);
         }
     }
 }
