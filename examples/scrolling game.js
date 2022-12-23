@@ -40,8 +40,8 @@ var GameScene = new Phaser.Class({
         this.load.image('ground', 'assets/firstgame/platform.png');
         this.load.image('star', 'assets/firstgame/star.png');
         this.load.image('bomb', 'assets/firstgame/bomb.png');
-        this.load.spritesheet('dude', 'assets/firstgame/dude.png', { frameWidth: 32, frameHeight: 48 });
         this.load.spritesheet('fullscreen', 'assets/fullscreen.png', { frameWidth: 64, frameHeight: 64 });
+        this.load.spritesheet('dude', 'assets/firstgame/dude.png', { frameWidth: 32, frameHeight: 48 });
     },
 
     create: function () {

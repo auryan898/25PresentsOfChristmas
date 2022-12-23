@@ -1,3 +1,4 @@
+// https://docs.idew.org/video-game/project-outline/1-7-phaser-practice-3-side-scrolling-game/p3-steps-1-5
 var mover = {
     isActive: false,
     startX: 0,
@@ -18,7 +19,7 @@ function bounds(val, lo, hi) {
 }
 
 var graphics;
-
+var main_obj;
 var GameScene = new Phaser.Class({
 
     Extends: Phaser.Scene,
@@ -44,6 +45,9 @@ var GameScene = new Phaser.Class({
     },
 
     create: function () {
+        main_obj = this;
+        this.physics.world.setBounds(0, 0, 800, 600);
+        
         this.input.addPointer(10);
         this.add.image(400, 300, 'sky');
 
@@ -59,6 +63,7 @@ var GameScene = new Phaser.Class({
 
         player.setBounce(0.2);
         player.setCollideWorldBounds(true);
+        this.cameras.main.target = player;
 
         this.anims.create({
             key: 'left',
@@ -103,8 +108,8 @@ var GameScene = new Phaser.Class({
 
         this.player = player;
 
-        var button = this.add.image(800 - 16, 16, 'fullscreen', 0).setOrigin(1, 0).setInteractive();
-
+        var button = this.add.image(400 - 16, 16, 'fullscreen', 0).setOrigin(1, 0).setInteractive();
+        button.scrollFactorX = 1;
         button.on('pointerup', function () {
 
             if (this.scale.isFullscreen) {
@@ -142,6 +147,8 @@ var GameScene = new Phaser.Class({
     update: function () {
         var cursors = this.cursors;
         var player = this.player;
+
+        this.cameras.main.scrollX = player.x - 300 / 2;
 
         if (cursors.left.isDown || (mover.isActive && mover.pointer.x < mover.startX - 30)) {
             player.setVelocityX(-160);
@@ -239,7 +246,7 @@ var config = {
         mode: Phaser.Scale.FIT,
         parent: 'phaser-example',
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: 800,
+        width: 400,
         height: 600
     },
     physics: {
