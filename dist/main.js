@@ -37,7 +37,7 @@ function bounds(val, lo, hi) {
 
 var graphics;
 
-var gravity_t = 0.5;
+var gravity_t = 0.9;
 var gravity_h = 32;
 var gravity_a = 4 * gravity_h / (gravity_t * gravity_t);
 var gravity_v = 4 * gravity_h / gravity_t;
@@ -155,11 +155,11 @@ function update_mobile_controls() {
     for (let i = 0; i < 10; i++) {
         let pointer = main.input['pointer' + (i + 1)];
         if (pointer.isDown) {
-            if (!mover.isActive && i != jumper.id) {
+            if (pointer.x <= gameWidth / 2 && !mover.isActive && i != jumper.id) {
                 // Assign pointer to mover
                 mover.isActive = true;
                 mover.pointer = pointer;
-                mover.startX = pointer.x;
+                mover.startX = 40;
                 mover.startY = pointer.y;
                 mover.id = i;
             } else if (!jumper.isActive && i != mover.id) {
