@@ -8,9 +8,9 @@ var gravity_t = 0.5;
 var gravity_h = 32;
 var gravity_a = 4 * gravity_h / (gravity_t * gravity_t);
 var gravity_v = 4 * gravity_h / gravity_t;
-var gravity_dh = 150;
+var gravity_dh = 64;
 var gravity_vh = gravity_dh / gravity_t;
-var gameWidth = 200;
+var gameWidth = 270;
 var gameHeight = 150;
 var stuff;
 
@@ -71,9 +71,9 @@ function create() {
 
 
     this.cameras.main.setZoom(1);
-    this.cameras.main.startFollow(this.stuff.player.sprite);
-    this.cameras.main.setLerp(1.0, 0.1)
-    this.cameras.main.setRoundPixels(true)
+    this.cameras.main.startFollow(this.stuff.player.sprite, true, 1.0, 0.1, 0, 0);
+    // this.cameras.main.setLerp(1.0, 0.1)
+    // this.cameras.main.setRoundPixels(true)
 }
 
 function update() {
