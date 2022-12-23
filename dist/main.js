@@ -140,7 +140,7 @@ class Player {
     }
 
     create() {
-        this.sprite = main.physics.add.sprite(100, 50, 'santaidle1');
+        this.sprite = main.physics.add.sprite(80, 180, 'santaidle1');
         let sprite = this.sprite;
         // sprite.setScale(2)
         // sprite.displayWidth = 100;
