@@ -1,6 +1,37 @@
+const encryptWithAES = (text) => {
+    const passphrase = '123';
+    return CryptoJS.AES.encrypt(text, passphrase).toString();
+  };
+  
+  const decryptWithAES = (ciphertext) => {
+    const passphrase = '123';
+    const bytes = CryptoJS.AES.decrypt(ciphertext, passphrase);
+    const originalText = bytes.toString(CryptoJS.enc.Utf8);
+    return originalText;
+  };
+
 // https://docs.idew.org/video-game/project-outline/1-7-phaser-practice-3-side-scrolling-game/p3-steps-1-5
 // https://photonstorm.github.io/phaser3-docs/Phaser.GameObjects.Sprite.html#willRender__anchor
+function password_prompt() {
+    let answer = window.prompt("What's the Secret Password in the Christmas Card?");
+    while (!verify_password(answer)) {
+        answer = window.prompt("What's the *Correct* Secret Password in the Christmas Card?");
+    }
+}
 
+
+function verify_password(password) {
+    let hash1 = '';
+    let hash2 = '';
+    let verifier = '9191d73a-43ea-4213-9693-b0af987a6693';
+    if (password == null) {
+        return true; // Cancelling the password attempts
+    }
+
+    if (verifier)
+
+        return false;
+}
 
 var mover = {
     deadzone: 8,
@@ -76,8 +107,13 @@ var config = {
 
 var graphics;
 
-var game = new Phaser.Game(config);
-
+var GAME_STARTED = false;
+document.getElementById('start-button').addEventListener('click', function () {
+    if (!GAME_STARTED) {
+        var game = new Phaser.Game(config);
+        GAME_STARTED = true;
+    }
+});
 function preload() {
     main = this;
     this.stuff = {
@@ -112,10 +148,10 @@ function create() {
     this.stuff.fullscreen.create();
     // Special Foreground 
     this.stuff.foreground.create_foreground();
-    
+
     this.stuff.player.create();
     this.stuff.collectibles.create();
-    
+
     this.stuff.foreground.create_lastground();
 
     this.stuff.platforms.collide(this.stuff.player.sprite);
@@ -220,7 +256,7 @@ function update_mobile_controls() {
 
 class Foreground {
     preload() {
-        main.load.tilemapTiledJSON('tiles-ground-map','assets/snowtiles/Arrangement2.json');
+        main.load.tilemapTiledJSON('tiles-ground-map', 'assets/snowtiles/Arrangement2.json');
         main.load.image('tiles-background', 'assets/snowtiles/Background.png')
         main.load.image('tiles-largeitems', 'assets/snowtiles/ItemSheet_LargeItems.png')
     }
@@ -256,7 +292,7 @@ class Collectibles {
 
             // Star
             tex.add(3, 0, 112, 59, 7, 6);
-            
+
             // Snowman
             tex.add(4, 0, 27, 14, 10, 8);
 
@@ -321,7 +357,7 @@ class Collectibles {
 
         for (let i = 0; i < coordinates.length; i++) {
             let coord = coordinates[i];
-            let frame = coord[0] >= 0 ? coord[0] : (i+1)%3;
+            let frame = coord[0] >= 0 ? coord[0] : (i + 1) % 3;
             let x = coord[1] * 16 + 8;
             let y = coord[2] * 16;
             stars.create(x, y, 'props', frame);
@@ -346,7 +382,8 @@ class Collectibles {
 
         this.score += 1;
         this.scoreText.setText('Gifts Collected: ' + this.score);
-        if (this.score >= 25) {
+        if (this.score >= 5) {
+            this.scoreText.setText('You got them all!');
             main.stuff.player.flyToEnd();
         }
     }
@@ -389,6 +426,19 @@ class Fullscreen {
             }
 
         }, main);
+
+        document.getElementById('fullscreen-button').addEventListener('click', function () {
+            if (main.scale.isFullscreen) {
+                button.setFrame(0);
+
+                main.scale.stopFullscreen();
+            }
+            else {
+                button.setFrame(1);
+
+                main.scale.startFullscreen();
+            }
+        });
     }
     update() {
         this.button.x = main.cameras.main.scrollX + (gameWidth - this.xoff);
@@ -445,8 +495,8 @@ class Player {
         for (let i = 1; i <= 64; i++) {
             main.load.image('santaidle' + i, 'assets/characters/Santa/SantaIdle/SantaIdle_' + String(i).padStart(2, '0') + '.png')
         }
-        main.load.spritesheet('santaspin', 'assets/characters/Santa/SantaAttack.png', {frameHeight: 32, frameWidth: 32})
-        main.load.spritesheet('santagift', 'assets/characters/Santa/SantaGift.png', {frameHeight: 32, frameWidth: 32})
+        main.load.spritesheet('santaspin', 'assets/characters/Santa/SantaAttack.png', { frameHeight: 32, frameWidth: 32 })
+        main.load.spritesheet('santagift', 'assets/characters/Santa/SantaGift.png', { frameHeight: 32, frameWidth: 32 })
     }
 
     create() {
@@ -476,7 +526,7 @@ class Player {
         let santaheli = []
         for (let j = 0; j <= 3; j++) {
             for (let i = 2; i <= 6; i++) {
-                santaheli.push({key: 'santaspin', frame: i+9*j});
+                santaheli.push({ key: 'santaspin', frame: i + 9 * j });
             }
         }
         // for (let i = 2; i <= 6; i++) {
@@ -484,15 +534,15 @@ class Player {
         // }
 
         main.anims.create({
-            key:'search_bag',
-            frames: main.anims.generateFrameNames('santagift', {start: 18, end: 18+13}),
+            key: 'search_bag',
+            frames: main.anims.generateFrameNames('santagift', { start: 18, end: 18 + 13 }),
             repeat: 0,
             framerate: 1,
         })
 
         main.anims.create({
-            key:'show_present',
-            frames: main.anims.generateFrameNames('santagift', {start: 18+14, end: 18+18-1}),
+            key: 'show_present',
+            frames: main.anims.generateFrameNames('santagift', { start: 18 + 14, end: 18 + 18 - 1 }),
             repeat: -1,
             framerate: 5,
         })
@@ -548,14 +598,6 @@ class Player {
             duration: 3000,
         });
 
-        // timeline.add({
-        //     targets: player,
-        //     x: 81 * 16,
-        //     y: 7 * 16,
-        //     ease: 'Power1',
-        //     duration: 6000,
-        // })
-
         timeline.add({
             targets: player,
             x: 91.5 * 16,
@@ -570,7 +612,7 @@ class Player {
             y: 5 * 16,
             ease: 'Power1',
             duration: 1500,
-            onComplete: function() {
+            onComplete: function () {
                 player.body.enable = true;
                 self.doPresent();
             }
@@ -586,16 +628,20 @@ class Player {
         let player = this.sprite;
         player.body.enable = false;
         // player.anims.play('search_bag')
+        main.stuff.collectibles.scoreText.setText("You win!");
         player.chain(['search_bag', 'show_present']);
         player.anims.stop();
         player.y += 12;
+        setTimeout(function () {
+            password_prompt();
+        }, 3500);
     }
 
     update() {
-        
+
         let cursors = main.cursors;
         let player = this.sprite;
-        
+
         if (!player.body.enable) {
             return;
         }
