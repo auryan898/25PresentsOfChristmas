@@ -405,7 +405,7 @@ class Collectibles {
 
         this.score += 1;
         this.scoreText.setText('Gifts Collected: ' + this.score);
-        if (this.score >= 5) {
+        if (this.score >= 25) {
             this.scoreText.setText('You got them all!');
             main.stuff.player.flyToEnd();
         }
