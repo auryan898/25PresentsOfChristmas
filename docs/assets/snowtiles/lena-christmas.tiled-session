@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "Arrangement1.json",
+    "activeFile": "Arrangement2.json",
     "expandedProjectPaths": [
         "."
     ],
@@ -70,11 +70,13 @@
     "map.tileWidth": 32,
     "map.width": 50,
     "openFiles": [
-        "Arrangement1.json"
+        "Arrangement1.json",
+        "Arrangement2.json"
     ],
     "project": "lena-christmas.tiled-project",
     "recentFiles": [
         "Arrangement1.json",
+        "Arrangement2.json",
         "TileSheet_Festive.json",
         "TileSheet_Snow.tsx",
         "TileSheet_Snow.json",
