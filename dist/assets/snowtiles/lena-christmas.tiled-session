@@ -3,7 +3,7 @@
         "height": 4300,
         "width": 2
     },
-    "activeFile": "TileSheet_Snow.tsx",
+    "activeFile": "Arrangement1.json",
     "expandedProjectPaths": [
         "."
     ],
@@ -12,12 +12,15 @@
             "scaleInDock": 1
         },
         "Arrangement1.json": {
-            "scale": 2,
+            "scale": 4,
             "selectedLayer": 0,
             "viewCenter": {
-                "x": 261.5,
-                "y": 172.75
+                "x": 70.75,
+                "y": 173.5
             }
+        },
+        "Arrangement1.json#TileSheet_Festive": {
+            "scaleInDock": 1
         },
         "Arrangement1.json#TileSheet_Snow": {
             "scaleInDock": 1,
@@ -49,17 +52,17 @@
     "map.tileWidth": 16,
     "map.width": 100,
     "openFiles": [
-        "TileSheet_Snow.tsx",
-        "TileSheet_Festive.tsx"
+        "Arrangement1.json"
     ],
     "project": "lena-christmas.tiled-project",
     "recentFiles": [
-        "TileSheet_Festive.json",
         "Arrangement1.json",
+        "TileSheet_Festive.json",
         "TileSheet_Snow.tsx",
         "TileSheet_Snow.json",
         "TileSheet_Festive.tsx"
     ],
+    "resizeMap.removeObjects": false,
     "tileset.embedInMap": true,
     "tileset.lastUsedFormat": "tsx",
     "tileset.tileSize": {
