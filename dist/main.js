@@ -537,6 +537,7 @@ class Player {
     }
 
     flyToEnd() {
+        // main.cameras.main.setZoom(0.8);
         let timeline = main.tweens.createTimeline();
         let player = this.sprite;
         timeline.add({
@@ -557,20 +558,21 @@ class Player {
 
         timeline.add({
             targets: player,
-            x: 87.5 * 16,
-            y: 7 * 16,
+            x: 91.5 * 16,
+            y: 2 * 16,
             ease: 'Power1',
             duration: 3000,
         })
-
+        let self = this;
         timeline.add({
             targets: player,
-            x: 87.5 * 16,
-            y: 27 * 16,
+            x: 91.5 * 16,
+            y: 5 * 16,
             ease: 'Power1',
             duration: 1500,
             onComplete: function() {
                 player.body.enable = true;
+                self.doPresent();
             }
         })
         player.body.enable = false;
