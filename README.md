@@ -1,4 +1,4 @@
-# Lena's Christmas Gift
+# 25PresentsOfChristmas
 
 For a Secret Santa done within my family, the unofficial theme was 
 "handmade" so I created a short game that gives back a gift card at the end.
